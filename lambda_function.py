@@ -64,8 +64,8 @@ def lambda_handler(event, context):
     todayWeather = soup.find(class_='today-weather')
     tomorrowWeather = soup.find(class_='tomorrow-weather')
 
-    today = datetime.date.today();
-    tomorrow = datetime.date.today() + datetime.timedelta(days=1);
+    today = datetime.date.today() + datetime.timedelta(hours=9);
+    tomorrow = today + datetime.timedelta(days=1);
 
     tweet(generate_weather_string(today, todayWeather))
     tweet(generate_weather_string(tomorrow, tomorrowWeather))
