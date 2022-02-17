@@ -55,6 +55,7 @@ def tweet(string):
   params = {'status': string}
   result = session.post(URL, params=params)  
   print('result: ', result)
+  print('result.json: ', result.json())
 
 
 def lambda_handler(event, context):
