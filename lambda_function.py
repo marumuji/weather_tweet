@@ -1,6 +1,6 @@
 import json
 import requests
-import datetime
+from datetime import datetime, timedelta, timezone
 from bs4 import BeautifulSoup
 import os
 from requests_oauthlib import OAuth1Session
@@ -8,6 +8,10 @@ from requests_oauthlib import OAuth1Session
 TENKI_URL = 'https://tenki.jp/forecast/3/17/4610/14130/'
 
 def generate_weather_string(date, weather_info):
+    # 更新日時
+    JST = timezone(timedelta(hours=+9))
+    updatedAt = datetime.now(JST).strftime('%Y/%m/%d %H:%M (JST)')
+
     # 降水確率のデータ取得
     timeTable = []
     rainProbatility = []
@@ -18,7 +22,7 @@ def generate_weather_string(date, weather_info):
       rainProbatility.append(element.text)
  
     # 天気予報のテキスト
-    weather_string = date.strftime('%Y/%m/%d') + 'の天気' + '\n' \
+    weather_string = date.strftime('%Y/%m/%d') + 'の天気' + ' [' + updatedAt + ' 更新]' + '\n' \
            + weather_info.find(class_ = 'weather-telop').text + '\n' \
            + weather_info.find(class_ = 'high-temp sumarry').text + ':' \
            + weather_info.find(class_ = 'high-temp temp').text + '\n' \
@@ -66,9 +70,9 @@ def lambda_handler(event, context):
     tomorrowWeather = soup.find(class_='tomorrow-weather')
 
     
-    JST = datetime.timezone(datetime.timedelta(hours=+9))
-    today = datetime.datetime.now(JST);
-    tomorrow = today + datetime.timedelta(days=1);
+    JST = timezone(timedelta(hours=+9))
+    today = datetime.now(JST);
+    tomorrow = today + timedelta(days=1);
 
     tweet(generate_weather_string(today, todayWeather))
     tweet(generate_weather_string(tomorrow, tomorrowWeather))
