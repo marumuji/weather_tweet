@@ -7,6 +7,20 @@ from requests_oauthlib import OAuth1Session
 
 TENKI_URL = 'https://tenki.jp/forecast/3/17/4610/14130/'
 
+def downloadImage(url, timeout=10):
+    response = requests.get(url, allow_redirects=False, timeout=timeout)
+    if response.status_code != 200:
+      e = Exception("HTTP status: " + response.status_code)
+      print(e)
+  
+    content_type = response.headers["content-type"]
+    if 'image' not in content_type:
+      e = Exception("Content-type: " + content_type)
+      print(e)
+  
+    # print(vars(response))
+    return response.content
+
 def generate_weather_string(date, weather_info):
     # 更新日時
     JST = timezone(timedelta(hours=+9))
@@ -68,14 +82,20 @@ def lambda_handler(event, context):
 
     todayWeather = soup.find(class_='today-weather')
     tomorrowWeather = soup.find(class_='tomorrow-weather')
+    todayWeatherImageUrl = todayWeather.find('img').get('src')
+    tomorrowWeatherImageUrl = tomorrowWeather.find('img').get('src')
 
-    
     JST = timezone(timedelta(hours=+9))
     today = datetime.now(JST);
     tomorrow = today + timedelta(days=1);
 
-    tweet(generate_weather_string(today, todayWeather))
-    tweet(generate_weather_string(tomorrow, tomorrowWeather))
+    todayWeatherImage = downloadImage(todayWeatherImageUrl)
+    tomorrowWeatherImage = downloadImage(tomorrowWeatherImageUrl)
+
+    # tweet(generate_weather_string(today, todayWeather))
+    # tweet(generate_weather_string(tomorrow, tomorrowWeather))
+    # tweet(generate_weather_string(today, todayWeather), todayWeatherImage)
+    # tweet(generate_weather_string(tomorrow, tomorrowWeather), tomorrowWeatherImage)
     
     return {
         'statusCode': 200,
