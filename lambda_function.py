@@ -48,8 +48,8 @@ def generate_weather_string(date, weather_info):
            + timeTable[4] + ':' + rainProbatility[3] 
     return weather_string
 
-def tweet(string):
-# def tweet(string, image):
+def tweet(string, image):
+# def tweet(string):
   CK = os.environ['CK']
   CS = os.environ['CS']
   AT = os.environ['AT']
@@ -59,22 +59,21 @@ def tweet(string):
   URL_MEDIA ="https://upload.twitter.com/1.1/media/upload.json"
   session = OAuth1Session(CK, CS, AT, AS)
   
-  # files = {'media' : image}
-  # req_media = session.post(URL_MEDIA, files=files)
+  files = {'media' : image}
+  req_media = session.post(URL_MEDIA, files=files)
 
-  # if req_media.status_code != 200:
-  #   print('upload failed : %s', req_media.text)
-  #   exit()
+  if req_media.status_code != 200:
+    print('upload failed : %s', req_media.text)
+    exit()
 
-  # media_id = json.loads(req_media.text)['media_id']
+  media_id = json.loads(req_media.text)['media_id']
 
   print('string: ', string)
-  # params = {'media_ids' : [media_id], 'status': string}
-  params = {'status': string}
+  params = {'media_ids' : [media_id], 'status': string}
+  # params = {'status': string}
   result = session.post(URL, params=params)  
   print('result: ', result)
   print('result.json: ', result.json())
-
 
 def lambda_handler(event, context):
     response = requests.get(TENKI_URL)
@@ -94,8 +93,8 @@ def lambda_handler(event, context):
 
     # tweet(generate_weather_string(today, todayWeather))
     # tweet(generate_weather_string(tomorrow, tomorrowWeather))
-    # tweet(generate_weather_string(today, todayWeather), todayWeatherImage)
-    # tweet(generate_weather_string(tomorrow, tomorrowWeather), tomorrowWeatherImage)
+    tweet(generate_weather_string(today, todayWeather), todayWeatherImage)
+    tweet(generate_weather_string(tomorrow, tomorrowWeather), tomorrowWeatherImage)
     
     return {
         'statusCode': 200,
