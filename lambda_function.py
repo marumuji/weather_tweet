@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 import os
 from requests_oauthlib import OAuth1Session
 
-TENKI_URL = 'https://tenki.jp/forecast/3/17/4610/14130/'
+TENKI_URL = os.environ['TENKI_URL']
 
 def downloadImage(url, timeout=10):
     response = requests.get(url, allow_redirects=False, timeout=timeout)
