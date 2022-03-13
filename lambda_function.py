@@ -4,6 +4,8 @@ from datetime import datetime, timedelta, timezone
 from bs4 import BeautifulSoup
 import os
 from requests_oauthlib import OAuth1Session
+# from io import BytesIO
+# from PIL import Image
 
 TENKI_URL = os.environ['TENKI_URL']
 
@@ -85,8 +87,11 @@ def lambda_handler(event, context):
     tomorrowWeatherImageUrl = tomorrowWeather.find('img').get('src')
 
     JST = timezone(timedelta(hours=+9))
-    today = datetime.now(JST);
-    tomorrow = today + timedelta(days=1);
+    today = datetime.now(JST)
+    tomorrow = today + timedelta(days=1)
+
+    # todayWeatherImage = Image.open(BytesIO(downloadImage(todayWeatherImageUrl))).resize(300,300)
+    # tomorrowWeatherImage = Image.open(BytesIO(downloadImage(tomorrowWeatherImageUrl))).resize(300,300)
 
     todayWeatherImage = downloadImage(todayWeatherImageUrl)
     tomorrowWeatherImage = downloadImage(tomorrowWeatherImageUrl)
