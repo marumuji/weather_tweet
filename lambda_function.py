@@ -90,14 +90,15 @@ def lambda_handler(event, context):
     today = datetime.now(JST)
     tomorrow = today + timedelta(days=1)
 
-    # todayWeatherImage = Image.open(BytesIO(downloadImage(todayWeatherImageUrl))).resize(300,300)
-    # tomorrowWeatherImage = Image.open(BytesIO(downloadImage(tomorrowWeatherImageUrl))).resize(300,300)
-
     todayWeatherImage = downloadImage(todayWeatherImageUrl)
     tomorrowWeatherImage = downloadImage(tomorrowWeatherImageUrl)
 
+    # todayWeatherImage = Image.open(BytesIO(downloadImage(todayWeatherImageUrl))).resize(300,300)
+    # tomorrowWeatherImage = Image.open(BytesIO(downloadImage(tomorrowWeatherImageUrl))).resize(300,300)
+
     # tweet(generate_weather_string(today, todayWeather))
     # tweet(generate_weather_string(tomorrow, tomorrowWeather))
+
     tweet(generate_weather_string(today, todayWeather), todayWeatherImage)
     tweet(generate_weather_string(tomorrow, tomorrowWeather), tomorrowWeatherImage)
     
