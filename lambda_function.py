@@ -4,8 +4,8 @@ from datetime import datetime, timedelta, timezone
 from bs4 import BeautifulSoup
 import os
 from requests_oauthlib import OAuth1Session
-# from io import BytesIO
-# from PIL import Image
+from io import BytesIO
+from PIL import Image
 
 TENKI_URL = os.environ['TENKI_URL']
 
@@ -90,17 +90,23 @@ def lambda_handler(event, context):
     today = datetime.now(JST)
     tomorrow = today + timedelta(days=1)
 
-    todayWeatherImage = downloadImage(todayWeatherImageUrl)
-    tomorrowWeatherImage = downloadImage(tomorrowWeatherImageUrl)
+    # todayWeatherImage = downloadImage(todayWeatherImageUrl)
+    # tomorrowWeatherImage = downloadImage(tomorrowWeatherImageUrl)
 
-    # todayWeatherImage = Image.open(BytesIO(downloadImage(todayWeatherImageUrl))).resize(300,300)
-    # tomorrowWeatherImage = Image.open(BytesIO(downloadImage(tomorrowWeatherImageUrl))).resize(300,300)
+    todayWeatherImage = Image.open(BytesIO(downloadImage(todayWeatherImageUrl))).resize((94,60))
+    todayWeatherImage.save('/tmp/hogehoge.png')
+    print(todayWeatherImage)
+    byte_io = BytesIO()
+    todayWeatherImage.save(byte_io, 'PNG')
+    print(byte_io.getvalue())
+    # tomorrowWeatherImage = Image.open(BytesIO(downloadImage(tomorrowWeatherImageUrl))).resize((300,300))
+    
 
     # tweet(generate_weather_string(today, todayWeather))
     # tweet(generate_weather_string(tomorrow, tomorrowWeather))
 
-    tweet(generate_weather_string(today, todayWeather), todayWeatherImage)
-    tweet(generate_weather_string(tomorrow, tomorrowWeather), tomorrowWeatherImage)
+    tweet(generate_weather_string(today, todayWeather), byte_io.getvalue())
+    # tweet(generate_weather_string(tomorrow, tomorrowWeather), tomorrowWeatherImage)
     
     return {
         'statusCode': 200,
