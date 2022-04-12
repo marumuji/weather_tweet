@@ -94,18 +94,20 @@ def lambda_handler(event, context):
     # tomorrowWeatherImage = downloadImage(tomorrowWeatherImageUrl)
 
     todayWeatherImage = Image.open(BytesIO(downloadImage(todayWeatherImageUrl))).resize((94,60))
-    todayWeatherImage.save('/tmp/hogehoge.png')
-    print(todayWeatherImage)
-    byte_io = BytesIO()
-    todayWeatherImage.save(byte_io, 'PNG')
-    print(byte_io.getvalue())
-    # tomorrowWeatherImage = Image.open(BytesIO(downloadImage(tomorrowWeatherImageUrl))).resize((300,300))
+    todayWeatherImageByte_io = BytesIO()
+    todayWeatherImage.save(todayWeatherImageByte_io, 'PNG')
+    tomorrowWeatherImage = Image.open(BytesIO(downloadImage(tomorrowWeatherImageUrl))).resize((94,60))
+    tomorrowWeatherImageByte_io = BytesIO()
+    tomorrowWeatherImage.save(tomorrowWeatherImageByte_io, 'PNG')
     
-
+    # tweet only text
     # tweet(generate_weather_string(today, todayWeather))
     # tweet(generate_weather_string(tomorrow, tomorrowWeather))
 
-    tweet(generate_weather_string(today, todayWeather), byte_io.getvalue())
+    # tweet text and image
+    tweet(generate_weather_string(today, todayWeather), todayWeatherImageByte_io.getvalue())
+    tweet(generate_weather_string(tomorrow, tomorrowWeather), tomorrowWeatherImageByte_io.getvalue())
+    # tweet(generate_weather_string(today, todayWeather), todayWeatherImage)
     # tweet(generate_weather_string(tomorrow, tomorrowWeather), tomorrowWeatherImage)
     
     return {
