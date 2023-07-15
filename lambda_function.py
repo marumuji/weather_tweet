@@ -52,28 +52,30 @@ def generate_weather_string(date, weather_info):
 
 def tweet(string, image):
 # def tweet(string):
-  CK = os.environ['CK']
-  CS = os.environ['CS']
-  AT = os.environ['AT']
-  AS = os.environ['AS']
+  CK = os.environ['CK'] # API Key
+  CS = os.environ['CS'] # API Secret
+  AT = os.environ['AT'] # Access Token
+  AS = os.environ['AS'] # Access Token Secret
   
   URL = 'https://api.twitter.com/1.1/statuses/update.json'
-  URL_MEDIA ="https://upload.twitter.com/1.1/media/upload.json"
+  # URL_MEDIA ="https://upload.twitter.com/1.1/media/upload.json"
   session = OAuth1Session(CK, CS, AT, AS)
   
-  files = {'media' : image}
-  req_media = session.post(URL_MEDIA, files=files)
+  # 画像はツイートしない
+  # files = {'media' : image}
+  # req_media = session.post(URL_MEDIA, files=files)
 
-  if req_media.status_code != 200:
-    print('upload failed : %s', req_media.text)
-    exit()
+  # if req_media.status_code != 200:
+  #   print('upload failed : %s', req_media.text)
+  #   exit()
 
-  media_id = json.loads(req_media.text)['media_id']
+  # media_id = json.loads(req_media.text)['media_id']
 
   print('string: ', string)
-  params = {'media_ids' : [media_id], 'status': string}
-  # params = {'status': string}
+  # params = {'media_ids' : [media_id], 'status': string}
+  params = {'status': string}
   result = session.post(URL, params=params)  
+
   print('result: ', result)
   print('result.json: ', result.json())
 
