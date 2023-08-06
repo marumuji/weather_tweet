@@ -6,6 +6,7 @@ import os
 from requests_oauthlib import OAuth1Session
 from io import BytesIO
 from PIL import Image
+import tweepy
 
 TENKI_URL = os.environ['TENKI_URL']
 
@@ -57,9 +58,18 @@ def tweet(string, image):
   AT = os.environ['AT'] # Access Token
   AS = os.environ['AS'] # Access Token Secret
   
-  URL = 'https://api.twitter.com/1.1/statuses/update.json'
+  # URL = 'https://api.twitter.com/1.1/statuses/update.json'
   # URL_MEDIA ="https://upload.twitter.com/1.1/media/upload.json"
-  session = OAuth1Session(CK, CS, AT, AS)
+  # session = OAuth1Session(CK, CS, AT, AS)
+
+  client = tweepy.Client(
+    consumer_key = CK,
+    consumer_secret = CS,
+    access_token = AT,
+    access_token_secret = AS
+  )
+
+  client.create_tweet(text = string)
   
   # 画像はツイートしない
   # files = {'media' : image}
@@ -71,13 +81,13 @@ def tweet(string, image):
 
   # media_id = json.loads(req_media.text)['media_id']
 
-  print('string: ', string)
+  # print('string: ', string)
   # params = {'media_ids' : [media_id], 'status': string}
-  params = {'status': string}
-  result = session.post(URL, params=params)  
+  # params = {'status': string}
+  # result = session.post(URL, params=params)  
 
-  print('result: ', result)
-  print('result.json: ', result.json())
+  # print('result: ', result)
+  # print('result.json: ', result.json())
 
 def lambda_handler(event, context):
     response = requests.get(TENKI_URL)
