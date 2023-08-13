@@ -52,15 +52,14 @@ def generate_weather_string(date, weather_info):
     return weather_string
 
 def tweet(string, image):
-# def tweet(string):
   CK = os.environ['CK'] # API Key
   CS = os.environ['CS'] # API Secret
   AT = os.environ['AT'] # Access Token
   AS = os.environ['AS'] # Access Token Secret
   
-  # URL = 'https://api.twitter.com/1.1/statuses/update.json'
-  # URL_MEDIA ="https://upload.twitter.com/1.1/media/upload.json"
-  # session = OAuth1Session(CK, CS, AT, AS)
+  auth = tweepy.OAuthHandler(CK, CS)
+  auth.set_access_token(AT, AS)
+  api = tweepy.API(auth)
 
   client = tweepy.Client(
     consumer_key = CK,
@@ -69,25 +68,8 @@ def tweet(string, image):
     access_token_secret = AS
   )
 
-  client.create_tweet(text = string)
-  
-  # 画像はツイートしない
-  # files = {'media' : image}
-  # req_media = session.post(URL_MEDIA, files=files)
-
-  # if req_media.status_code != 200:
-  #   print('upload failed : %s', req_media.text)
-  #   exit()
-
-  # media_id = json.loads(req_media.text)['media_id']
-
-  # print('string: ', string)
-  # params = {'media_ids' : [media_id], 'status': string}
-  # params = {'status': string}
-  # result = session.post(URL, params=params)  
-
-  # print('result: ', result)
-  # print('result.json: ', result.json())
+  media = api.media_upload(filename = image)
+  client.create_tweet(text = string, media_ids=[media.media_id])
 
 def lambda_handler(event, context):
     response = requests.get(TENKI_URL)
@@ -95,32 +77,29 @@ def lambda_handler(event, context):
 
     todayWeather = soup.find(class_='today-weather')
     tomorrowWeather = soup.find(class_='tomorrow-weather')
+
     todayWeatherImageUrl = todayWeather.find('img').get('src')
     tomorrowWeatherImageUrl = tomorrowWeather.find('img').get('src')
+
+    todayWeatherFilePath = '/tmp/todayWeather.png'
+    tomorrowWeatherFilePath = '/tmp/tomorrowWeather.png'
 
     JST = timezone(timedelta(hours=+9))
     today = datetime.now(JST)
     tomorrow = today + timedelta(days=1)
 
-    # todayWeatherImage = downloadImage(todayWeatherImageUrl)
-    # tomorrowWeatherImage = downloadImage(tomorrowWeatherImageUrl)
-
     todayWeatherImage = Image.open(BytesIO(downloadImage(todayWeatherImageUrl))).resize((94,60))
-    todayWeatherImageByte_io = BytesIO()
-    todayWeatherImage.save(todayWeatherImageByte_io, 'PNG')
+    todayWeatherImage.save(todayWeatherFilePath, format='PNG')
     tomorrowWeatherImage = Image.open(BytesIO(downloadImage(tomorrowWeatherImageUrl))).resize((94,60))
-    tomorrowWeatherImageByte_io = BytesIO()
-    tomorrowWeatherImage.save(tomorrowWeatherImageByte_io, 'PNG')
+    tomorrowWeatherImage.save(tomorrowWeatherFilePath, format='PNG')
     
     # tweet only text
     # tweet(generate_weather_string(today, todayWeather))
     # tweet(generate_weather_string(tomorrow, tomorrowWeather))
 
     # tweet text and image
-    tweet(generate_weather_string(today, todayWeather), todayWeatherImageByte_io.getvalue())
-    tweet(generate_weather_string(tomorrow, tomorrowWeather), tomorrowWeatherImageByte_io.getvalue())
-    # tweet(generate_weather_string(today, todayWeather), todayWeatherImage)
-    # tweet(generate_weather_string(tomorrow, tomorrowWeather), tomorrowWeatherImage)
+    tweet(generate_weather_string(today, todayWeather), todayWeatherFilePath)
+    tweet(generate_weather_string(tomorrow, tomorrowWeather), tomorrowWeatherFilePath)
     
     return {
         'statusCode': 200,
